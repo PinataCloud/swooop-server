@@ -1,11 +1,13 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express,  } from "express";
 import dotenv from "dotenv";
+import { getFnameFromFid } from "../utils/getFnameFromFid";
+import {getPfpFromFid} from "../utils/getPfpFromFid";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
-const hubUrl = "https://hub.pinata.cloud/v1";
+export const hubUrl = "https://hub.pinata.cloud/v1";
 
 export const getFeed = async (channel: any, nextPage: any) => {
   try {
@@ -36,26 +38,6 @@ export const getFeed = async (channel: any, nextPage: any) => {
   }
 }
 
-
-export async function getFnameFromFid(fid: any): Promise<string> {
-  const result = await fetch(
-    `${hubUrl}/userDataByFid?fid=${fid}&user_data_type=USER_DATA_TYPE_USERNAME`,
-  );
-  const resultData = await result.json();
-  const fname = resultData?.data?.userDataBody?.value || fid;
-  return fname;
-}
-
-export async function getPfpFromFid(fid: any): Promise<string> {
-  const result = await fetch(
-    `${hubUrl}/userDataByFid?fid=${fid}&user_data_type=USER_DATA_TYPE_PFP`,
-  );
-  const resultData = await result.json();
-  const pfp = resultData?.data?.userDataBody?.value || "";
-  return pfp;
-
-};
-
 app.get("/", (req: express.Request, res: express.Response) => {
   res.send("Express + TypeScript Server");
 });
@@ -70,6 +52,10 @@ app.get("/feed", async (req: express.Request, res: express.Response) => {
   }
 });
 
+
+app.post("/sign-in", async (req: express.Request, res: express.Response) => {
+
+});
 
 
 app.listen(port, () => {
