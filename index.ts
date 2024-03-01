@@ -1,7 +1,9 @@
 import express, { Express,  } from "express";
 import dotenv from "dotenv";
-import { getFnameFromFid } from "../utils/getFnameFromFid";
-import {getPfpFromFid} from "../utils/getPfpFromFid";
+import { getFnameFromFid } from "./utils/getFnameFromFid";
+import {getPfpFromFid} from "./utils/getPfpFromFid";
+import { getSigner } from "./utils/getSigner";
+
 
 dotenv.config();
 
@@ -38,6 +40,7 @@ export const getFeed = async (channel: any, nextPage: any) => {
   }
 }
 
+
 app.get("/", (req: express.Request, res: express.Response) => {
   res.send("Express + TypeScript Server");
 });
@@ -54,6 +57,10 @@ app.get("/feed", async (req: express.Request, res: express.Response) => {
 
 
 app.post("/sign-in", async (req: express.Request, res: express.Response) => {
+  const { publicKey }  = req.body;
+  const data = await getSigner(publicKey);
+
+   
 
 });
 
