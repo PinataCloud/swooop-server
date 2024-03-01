@@ -1,8 +1,8 @@
 import express, { Express,  } from "express";
 import dotenv from "dotenv";
-import { getFnameFromFid } from "../utils/getFnameFromFid";
-import {getPfpFromFid} from "../utils/getPfpFromFid";
-import { getSigner } from "../utils/getSigner";
+import { getFnameFromFid } from "./utils/getFnameFromFid";
+import {getPfpFromFid} from "./utils/getPfpFromFid";
+import { getSigner } from "./utils/getSigner";
 
 
 dotenv.config();

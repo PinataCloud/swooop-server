@@ -1,4 +1,4 @@
-import { hubUrl } from "../src";
+import { hubUrl } from "..";
 
 export async function getPfpFromFid(fid: any): Promise<string> {
     const result = await fetch(
