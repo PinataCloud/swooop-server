@@ -56,15 +56,6 @@ app.get("/feed", async (req: express.Request, res: express.Response) => {
 });
 
 
-app.post("/sign-in", async (req: express.Request, res: express.Response) => {
-  const { publicKey }  = req.body;
-  const data = await getSigner(publicKey);
-
-   
-
-});
-
-
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
