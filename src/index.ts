@@ -20,7 +20,7 @@ export const getFeed = async (channel: any, nextPage: any) => {
         const fname = await getFnameFromFid(cast.data.fid);
         const pfp = await getPfpFromFid(cast.data.fid);
         return {
-          id: cast.data.hash,
+          id: cast.hash,
           castText: cast.data.castAddBody.text,
           embeds: cast.data.castAddBody.embeds,
           username: fname,
