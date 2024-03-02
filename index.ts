@@ -2,7 +2,7 @@ import express, { Express,  } from "express";
 import dotenv from "dotenv";
 import { getFnameFromFid } from "./utils/getFnameFromFid";
 import {getPfpFromFid} from "./utils/getPfpFromFid";
-import { getFarcasterUser } from "./utils/getFarcasterUser";
+import { getFarcasterUser } from "./utils/getFarcasterUser"
 
 
 dotenv.config();
@@ -72,6 +72,12 @@ app.post("/sign-in", async (req: express.Request, res: express.Response) => {
   } catch (error) {
     res.status(500).json({error: error});
   }
+});
+
+
+app.get("/sign-in/poll", async (req: express.Request, res: express.Response) => {
+  const {pollingToken} = req.query;
+
 });
 
 app.listen(port, () => {
