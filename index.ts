@@ -2,7 +2,7 @@ import express, { Express,  } from "express";
 import dotenv from "dotenv";
 import { getFnameFromFid } from "./utils/getFnameFromFid";
 import {getPfpFromFid} from "./utils/getPfpFromFid";
-import { getSigner } from "./utils/getSigner";
+import { getFarcasterUser } from "./utils/getFarcasterUser";
 
 
 dotenv.config();
@@ -55,6 +55,24 @@ app.get("/feed", async (req: express.Request, res: express.Response) => {
   }
 });
 
+app.post("/sign-in", async (req: express.Request, res: express.Response) => {
+  try {
+    const farcasterUser = await getFarcasterUser();
+    if(farcasterUser) {
+      res.json({
+        deepLinkUrl: farcasterUser?.signerApprovalUrl, 
+        pollingToken: farcasterUser?.token,
+        publicKey: farcasterUser?.publicKey,
+        privateKey: farcasterUser?.privateKey,
+      });
+    }
+    else{
+      res.status(500).json({error: "Failed to get farcaster user"});
+    }
+  } catch (error) {
+    res.status(500).json({error: error});
+  }
+});
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
