@@ -4,6 +4,12 @@ import { getFnameFromFid } from "./utils/getFnameFromFid";
 import {getPfpFromFid} from "./utils/getPfpFromFid";
 import { getFarcasterUser } from "./utils/getFarcasterUser"
 import { SignedKeyRequest } from "./types";
+import { hexToBytes } from "@noble/hashes/utils";
+import {  Message,
+  NobleEd25519Signer,
+  FarcasterNetwork,
+  makeCastAdd,
+} from "@farcaster/core"
 
 
 dotenv.config();
@@ -11,6 +17,9 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 export const hubUrl = "https://hub.pinata.cloud/v1";
+
+app.use(express.json());
+
 
 export const getFeed = async (channel: any, nextPage: any) => {
   try {
@@ -107,6 +116,70 @@ app.get("/sign-in/poll", async (req: express.Request, res: express.Response) => 
     }
   }
 );
+
+app.post("/message", async (req: express.Request, res: express.Response) => { 
+  const NETWORK = FarcasterNetwork.MAINNET; 
+  try {
+    console.log(req.body);
+    const SIGNER = req.body.signer;
+    const FID = req.body.fid;
+    const link = req.body.link;
+    const message = req.body.castMessage;
+    const parentUrl = req.body.parentUrl;
+    if (!link) {
+      return res.status(500).json({ error: "No link provided" });
+    }
+
+    const dataOptions = {
+      fid: FID,
+      network: NETWORK,
+    };
+    // Set up the signer
+    const privateKeyBytes = hexToBytes(SIGNER.slice(2));
+    const ed25519Signer = new NobleEd25519Signer(privateKeyBytes);
+
+    const castBody = {
+      text: message,
+      embeds: [{ url: link }],
+      embedsDeprecated: [],
+      mentions: [],
+      mentionsPositions: [],
+      parentUrl: parentUrl,
+    };
+
+    const castAddReq: any = await makeCastAdd(
+      castBody,
+      dataOptions,
+      ed25519Signer,
+    );
+    const castAdd: any = castAddReq._unsafeUnwrap();
+
+    const messageBytes = Buffer.from(Message.encode(castAdd).finish());
+
+    const castRequest = await fetch(
+      "https://hub.pinata.cloud/v1/submitMessage",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/octet-stream" },
+        body: messageBytes,
+      },
+    );
+
+    const castResult = await castRequest.json();
+    console.log(castResult);
+    if (!castResult.hash) {
+      return res.status(500).json({ error: "Failed to submit message" });
+    } else {
+      let hex = Buffer.from(castResult.hash).toString("hex");
+      return res.status(200).json({hex: hex});
+    }
+  
+  } catch (error) {
+    console.log(error);
+    return res.json({ "server error": error });
+  }
+
+});
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
