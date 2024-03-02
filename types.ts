@@ -21,3 +21,12 @@ export type SignedKeyRequest = {
     signerUserMetadata?: object;
   }
   
+
+  export type CastBody = {
+      text: string,
+      embeds: Array<any>,
+      embedsDeprecated: Array<any>,
+      mentions: Array<any>,
+      mentionsPositions: Array<any>,
+      parentUrl?: string,
+  }

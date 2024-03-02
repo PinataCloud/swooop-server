@@ -1,7 +1,7 @@
 import express, { Express,  } from "express";
 import dotenv from "dotenv";
 import { getFarcasterUser } from "./utils/getFarcasterUser"
-import { SignedKeyRequest } from "./types";
+import { SignedKeyRequest, CastBody } from "./types";
 import { hexToBytes } from "@noble/hashes/utils";
 import {  Message,
   NobleEd25519Signer,
@@ -127,14 +127,18 @@ app.post("/message", async (req: express.Request, res: express.Response) => {
     const privateKeyBytes = hexToBytes(SIGNER.slice(2));
     const ed25519Signer = new NobleEd25519Signer(privateKeyBytes);
 
-    const castBody = {
+    const castBody: CastBody = {
       text: message,
       embeds: [],
       embedsDeprecated: [],
       mentions: [],
       mentionsPositions: [],
-      parentUrl: parentUrl,
     };
+
+    if(parentUrl.length > 0){
+      castBody["parentUrl"] = parentUrl;
+
+    }
 
     const castAddReq: any = await makeCastAdd(
       castBody,
