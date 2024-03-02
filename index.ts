@@ -122,14 +122,11 @@ app.post("/message", async (req: express.Request, res: express.Response) => {
   const NETWORK = FarcasterNetwork.MAINNET; 
   try {
     console.log(req.body);
-    const SIGNER = req.body.signer;
-    const FID = req.body.fid;
-    const link = req.body.link;
-    const message = req.body.castMessage;
-    const parentUrl = req.body.parentUrl;
-    if (!link) {
-      return res.status(500).json({ error: "No link provided" });
-    }
+    const SIGNER = req?.body?.signer;
+    const FID = req?.body?.fid;
+    const message = req?.body?.castMessage;
+    const parentUrl = req?.body?.parentUrl;
+
 
     const dataOptions = {
       fid: FID,
@@ -141,7 +138,7 @@ app.post("/message", async (req: express.Request, res: express.Response) => {
 
     const castBody = {
       text: message,
-      embeds: [{ url: link }],
+      embeds: [],
       embedsDeprecated: [],
       mentions: [],
       mentionsPositions: [],
