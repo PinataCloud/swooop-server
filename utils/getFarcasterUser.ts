@@ -23,6 +23,7 @@ const SIGNED_KEY_REQUEST_VALIDATOR_EIP_712_DOMAIN = {
 export const getFarcasterUser = async () => {
   const keypair = await createKeypair();
   const keypairString = convertKeypairToHex(keypair);
+  console.log(`0x${keypairString.publicKey}`)
 
   const appFid = process.env.FARCASTER_DEVELOPER_FID!;
   const account = mnemonicToAccount(
@@ -39,7 +40,7 @@ export const getFarcasterUser = async () => {
     primaryType: "SignedKeyRequest",
     message: {
       requestFid: BigInt(appFid),
-      key: `0x${keypairString.publicKey}`,
+      key: keypairString.publicKey as `0x`,
       deadline: BigInt(deadline),
     },
   });

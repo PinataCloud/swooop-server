@@ -1,7 +1,5 @@
 import express, { Express,  } from "express";
 import dotenv from "dotenv";
-import { getFnameFromFid } from "./utils/getFnameFromFid";
-import {getPfpFromFid} from "./utils/getPfpFromFid";
 import { getFarcasterUser } from "./utils/getFarcasterUser"
 import { SignedKeyRequest } from "./types";
 import { hexToBytes } from "@noble/hashes/utils";
@@ -10,62 +8,46 @@ import {  Message,
   FarcasterNetwork,
   makeCastAdd,
 } from "@farcaster/core"
-
+import { getFeed } from "./utils/getFeed";
+import { getUserByFid } from "./utils/geUserByFid";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
+
 export const hubUrl = "https://hub.pinata.cloud/v1";
+
 
 app.use(express.json());
 
-
-export const getFeed = async (channel: any, nextPage: any) => {
-  try {
-    const result = await fetch(
-      `${hubUrl}/castsByParent?url=${channel}&pageSize=20&reverse=true&pageToken=${nextPage}`,
-    );
-    const resultData = await result.json();
-    const pageToken = resultData.nextPageToken;
-    const casts = resultData.messages;
-    const simplifiedCasts = await Promise.all(
-      casts.map(async (cast: any) => {
-        const fname = await getFnameFromFid(cast.data.fid);
-        const pfp = await getPfpFromFid(cast.data.fid);
-        const { embedUrl, embedCast } = cast.data.castAddBody.embeds.reduce((acc: any, embed: any) => {
-          if (embed.url) {
-            acc.embedUrl.push(embed);
-          } else if (embed.castId) {
-            acc.embedCast.push(embed);
-          }
-          return acc;
-        }, { embedUrl: [], embedCast: [] });
-        return {
-          id: cast.hash,
-          castText: cast.data.castAddBody.text,
-          embedUrl: embedUrl,
-          embedCast: embedCast,
-          username: fname,
-          pfp: pfp,
-          timestamp: cast.data.timestamp,
-        };
-      }),
-    );
-    return simplifiedCasts;
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-}
-
-
 app.get("/", (req: express.Request, res: express.Response) => {
-  res.send("Express + TypeScript Server");
+  res.send("Express + TypeScript Farcaster Server");
+});
+
+app.get("/user",async (req: express.Request, res: express.Response) => {
+  const { userFid } = req.query;
+  if(!userFid){
+    res.status(400).json({error: "No FID provided"});
+  }
+  const fid = parseInt(userFid as string);
+  const user = await getUserByFid(fid);
+  if(user){
+    res.json(user);
+  }
+  else{
+    res.status(500).json({error: "Failed to get user"});
+  }
 });
 
 app.get("/feed", async (req: express.Request, res: express.Response) => {
   const {channel, pageToken} = req.query;
+  if(!channel){
+    res.status(400).json({error: "No channel provided"});
+  }
+  if(!pageToken){
+    res.status(400).json({error: "No pageToken provided"});
+  }
   try {
     const simplifiedCasts = await getFeed(channel, pageToken);
     res.json(simplifiedCasts);
@@ -73,26 +55,6 @@ app.get("/feed", async (req: express.Request, res: express.Response) => {
     res.status(500).json({error: error});
   }
 });
-
-app.post("/sign-in", async (req: express.Request, res: express.Response) => {
-  try {
-    const farcasterUser = await getFarcasterUser();
-    if(farcasterUser) {
-      res.json({
-        deepLinkUrl: farcasterUser?.signerApprovalUrl, 
-        pollingToken: farcasterUser?.token,
-        publicKey: farcasterUser?.publicKey,
-        privateKey: farcasterUser?.privateKey,
-      });
-    }
-    else{
-      res.status(500).json({error: "Failed to get farcaster user"});
-    }
-  } catch (error) {
-    res.status(500).json({error: error});
-  }
-});
-
 
 app.get("/sign-in/poll", async (req: express.Request, res: express.Response) => {
   const {pollingToken} = req.query;
@@ -118,6 +80,29 @@ app.get("/sign-in/poll", async (req: express.Request, res: express.Response) => 
   }
 );
 
+app.post("/sign-in", async (req: express.Request, res: express.Response) => {
+  try {
+    const farcasterUser = await getFarcasterUser();
+    if(!farcasterUser) {
+      res.status(500).json({error: "Failed to sign in user"});
+    }
+    if(farcasterUser) {
+      res.json({
+        deepLinkUrl: farcasterUser?.signerApprovalUrl, 
+        pollingToken: farcasterUser?.token,
+        publicKey: farcasterUser?.publicKey,
+        privateKey: farcasterUser?.privateKey,
+      });
+    }
+    else{
+      res.status(500).json({error: "Failed to get farcaster user"});
+    }
+  } catch (error) {
+    res.status(500).json({error: error});
+  }
+});
+
+
 app.post("/message", async (req: express.Request, res: express.Response) => { 
   const NETWORK = FarcasterNetwork.MAINNET; 
   try {
@@ -127,6 +112,12 @@ app.post("/message", async (req: express.Request, res: express.Response) => {
     const message = req?.body?.castMessage;
     const parentUrl = req?.body?.parentUrl;
 
+    if(!SIGNER) {
+      return res.status(401).json({error: "No signer provided"});
+    }
+    if(!FID) {
+      return res.status(400).json({error: "No FID provided"});
+    }
 
     const dataOptions = {
       fid: FID,
