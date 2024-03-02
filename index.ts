@@ -109,7 +109,8 @@ app.get("/sign-in/poll", async (req: express.Request, res: express.Response) => 
       const responseBody = (await fcSignerRequestResponse.json()) as {
         result: { signedKeyRequest: SignedKeyRequest };
       };
-      res.status(200).send({"state": responseBody.result.signedKeyRequest.state});
+      console.log(responseBody)
+      res.status(200).json({"state": responseBody.result.signedKeyRequest.state, "userFid": responseBody.result.signedKeyRequest.requestFid});
     }
     catch (error) {
       res.status(500).json(error);
