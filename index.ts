@@ -23,10 +23,19 @@ export const getFeed = async (channel: any, nextPage: any) => {
       casts.map(async (cast: any) => {
         const fname = await getFnameFromFid(cast.data.fid);
         const pfp = await getPfpFromFid(cast.data.fid);
+        const { embedUrl, embedCast } = cast.data.castAddBody.embeds.reduce((acc: any, embed: any) => {
+          if (embed.url) {
+            acc.embedUrl.push(embed);
+          } else if (embed.castId) {
+            acc.embedCast.push(embed);
+          }
+          return acc;
+        }, { embedUrl: [], embedCast: [] });
         return {
           id: cast.hash,
           castText: cast.data.castAddBody.text,
-          embeds: cast.data.castAddBody.embeds,
+          embedUrl: embedUrl,
+          embedCast: embedCast,
           username: fname,
           pfp: pfp,
           timestamp: cast.data.timestamp,
