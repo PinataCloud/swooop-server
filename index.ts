@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { getFnameFromFid } from "./utils/getFnameFromFid";
 import {getPfpFromFid} from "./utils/getPfpFromFid";
 import { getFarcasterUser } from "./utils/getFarcasterUser"
+import { SignedKeyRequest } from "./types";
 
 
 dotenv.config();
@@ -86,8 +87,26 @@ app.post("/sign-in", async (req: express.Request, res: express.Response) => {
 
 app.get("/sign-in/poll", async (req: express.Request, res: express.Response) => {
   const {pollingToken} = req.query;
-
-});
+    try {
+      const fcSignerRequestResponse = await fetch(
+        `https://api.warpcast.com/v2/signed-key-request?token=${pollingToken}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const responseBody = (await fcSignerRequestResponse.json()) as {
+        result: { signedKeyRequest: SignedKeyRequest };
+      };
+      res.status(200).send({"state": responseBody.result.signedKeyRequest.state});
+    }
+    catch (error) {
+      res.status(500).json(error);
+    }
+  }
+);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

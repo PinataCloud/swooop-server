@@ -8,3 +8,16 @@ export type FarcasterUser = {
     token?: any;
     fid?: number;
   }; 
+
+export type SignedKeyRequest = {
+    deeplinkUrl: string;
+    isSponsored: boolean;
+    key: string;
+    requestFid: number;
+    state: string;
+    token: string;
+    userFid: number;
+    signerUser?: object;
+    signerUserMetadata?: object;
+  }
+  
