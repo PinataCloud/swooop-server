@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@noble/ed25519": "^2.0.0",
+    "bun": "^1.0.29",
     "dotenv": "^16.4.5",
     "express": "^4.18.3",
     "noble": "^1.9.1",
@@ -21,9 +22,9 @@
     "viem": "^2.7.16"
   },
   "devDependencies": {
+    "@types/bun": "latest",
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.24",
-    "typescript": "^5.3.3",
-    "@types/bun": "latest"
+    "typescript": "^5.3.3"
   }
 }
