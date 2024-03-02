@@ -72,7 +72,7 @@ app.get("/sign-in/poll", async (req: express.Request, res: express.Response) => 
         result: { signedKeyRequest: SignedKeyRequest };
       };
       console.log(responseBody)
-      res.status(200).json({"state": responseBody.result.signedKeyRequest.state, "userFid": responseBody.result.signedKeyRequest.requestFid});
+      res.status(200).json({"state": responseBody.result.signedKeyRequest.state, "userFid": responseBody.result.signedKeyRequest.userFid});
     }
     catch (error) {
       res.status(500).json(error);
