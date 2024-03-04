@@ -108,9 +108,10 @@ app.post("/message", async (req: express.Request, res: express.Response) => {
   try {
     console.log(req.body);
     const SIGNER = req?.body?.signer;
-    const FID = req?.body?.fid;
+    const rawFID = req?.body?.fid;
     const message = req?.body?.castMessage;
     const parentUrl = req?.body?.parentUrl;
+    const FID = parseInt(rawFID)
 
     if(!SIGNER) {
       return res.status(401).json({error: "No signer provided"});
