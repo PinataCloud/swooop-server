@@ -17,7 +17,7 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 export const hubUrl = "https://hub.pinata.cloud/v1";
-export const apiUrl = "https://api.devpinata.cloud/v3";
+export const apiUrl = "https://api.pinata.cloud/v3";
 
 
 app.use(express.json());
