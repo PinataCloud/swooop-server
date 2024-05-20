@@ -17,6 +17,7 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 export const hubUrl = "https://hub.pinata.cloud/v1";
+export const apiUrl = "https://api.pinata.cloud/v3";
 
 
 app.use(express.json());
@@ -44,9 +45,6 @@ app.get("/feed", async (req: express.Request, res: express.Response) => {
   const {channel, pageToken} = req.query;
   if(!channel){
     res.status(400).json({error: "No channel provided"});
-  }
-  if(!pageToken){
-    res.status(400).json({error: "No pageToken provided"});
   }
   try {
     const simplifiedCasts = await getFeed(channel, pageToken);
